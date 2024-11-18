@@ -1,5 +1,6 @@
 """Computation of weighted average of squares."""
 
+import argparse
 
 def average_of_squares(list_of_numbers, list_of_weights=None):
     """ Return the weighted average of a list of values.
@@ -35,28 +36,40 @@ def average_of_squares(list_of_numbers, list_of_weights=None):
 def convert_numbers(list_of_strings):
     """Convert a list of strings into numbers, ignoring whitespace.
     
-    Example:
-    --------
-    >>> convert_numbers(["4", " 8 ", "15 16", " 23    42 "])
-    [4, 8, 15, 16]
-
+    Invalid inputs will be skipped with an error message.
     """
     all_numbers = []
     for s in list_of_strings:
-        # Take each string in the list, split it into substrings separated by
-        # whitespace, and collect them into a single list...
         all_numbers.extend([token.strip() for token in s.split()])
-    # ...then convert each substring into a number
-    return [float(number_string) for number_string in all_numbers]
+    converted_numbers = []
+    for number_string in all_numbers:
+        try:
+            converted_numbers.append(float(number_string))
+        except ValueError:
+            print(f"Warning: '{number_string}' is not a valid number and will be skipped.")
+    return converted_numbers
 
 
 if __name__ == "__main__":
-    numbers_strings = ["1","2","4"]
-    weight_strings = ["1","1","1"]        
+    # 使用 argparse 解析命令行输入
+    parser = argparse.ArgumentParser(description="Compute weighted average of squares.")
+    parser.add_argument("numbers", nargs="+", help="List of numbers to process.")
+    parser.add_argument(
+        "--weights", nargs="+", help="List of weights corresponding to the numbers."
+    )
+    args = parser.parse_args()
     
+    # 将命令行输入转换为数字
+    numbers_strings = args.numbers
     numbers = convert_numbers(numbers_strings)
-    weights = convert_numbers(weight_strings)
     
+    # 将命令行输入的权重（如果有）转换为数字
+    if args.weights:
+        weights = convert_numbers(args.weights)
+    else:
+        weights = None  # 如果没有提供权重，则使用默认权重 1
+    
+    # 计算结果
     result = average_of_squares(numbers, weights)
     
     print(result)
